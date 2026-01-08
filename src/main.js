@@ -111,6 +111,13 @@ window.preload = function () {
     // UI - These often have the bad backgrounds
     window.assets.frame = loadImage('assets/blue_frame.png', cleanImage);
     window.assets.gauge = loadImage('assets/flame_gauge.png', cleanImage);
+    window.assets.flameFrames = [
+        loadImage('assets/flame/flame-1.png', cleanImage),
+        loadImage('assets/flame/flame-2.png', cleanImage),
+        loadImage('assets/flame/flame-3.png', cleanImage),
+        loadImage('assets/flame/flame-4.png', cleanImage),
+        loadImage('assets/flame/flame-5.png', cleanImage)
+    ];
     window.assets.buttons = loadImage('assets/buttons.png', cleanImage);
 }
 

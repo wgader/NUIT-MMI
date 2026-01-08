@@ -174,31 +174,33 @@ export default class GameState {
 
     drawGaugeFill() {
         // Gauge Frame at x=10, y=140, w=90, h=300
-        // Inner area will be centered inside the frame
+        // Draw flame sprites based on power instead of a color rect
 
         let power = this.squatDetector.power;
-        // Inner gauge geometry (tweak innerW to change width)
+        const frames = window.assets && window.assets.flameFrames;
+
         const gaugeX = 10;
+        const gaugeY = 140;
         const gaugeW = 90;
-        const innerW = 30; // width of the progression bar
-        const innerX = gaugeX + Math.round((gaugeW - innerW) / 2);
+        const gaugeH = 300;
 
-        // Reduce height so it doesn't overlap (adjust as needed)
-        const maxH = 200;      // <- lowered from 240
-        const innerTop = 200;  // <- top Y for the max-height area (was ~170)
+        // Size/placement for the flame inside the gauge
+        const flameW = 50;
+        const flameH = 220;
+        const flameX = gaugeX + Math.round((gaugeW - flameW) / 2);
+        const flameBottom = gaugeY + gaugeH - 20; // leave small padding at bottom
+        const flameY = flameBottom - flameH;
 
-        if (power > 0) {
-            let h = map(power, 0, 100, 0, maxH);
-
-            let c = lerpColor(color(255, 0, 0), color(255, 255, 0), power / 100);
-
-            fill(c); noStroke();
-            rect(innerX, innerTop + (maxH - h), innerW, h);
+        if (frames && frames.length && power >= 0) {
+            // Map low power to frame 0 (flame-1), high power to last frame
+            let idx = Math.floor(map(power, 0, 100, 0, frames.length - 1));
+            idx = constrain(idx, 0, frames.length - 1);
+            image(frames[idx], flameX, flameY, flameW, flameH);
         }
 
         // Label (keeps centered over the inner bar)
         fill(255); textAlign(CENTER); textSize(12);
-        text("POWER", innerX + innerW / 2, 140);
+        text("POWER", gaugeX + gaugeW / 2, 140);
     }
 
     drawPhaseOverlays() {
