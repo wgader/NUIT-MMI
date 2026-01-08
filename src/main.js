@@ -108,6 +108,10 @@ window.preload = function () {
     // Background (Opaque)
     window.assets.bg = loadImage('assets/retro_bg.png');
 
+    // Characters
+    window.assets.client = loadImage('assets/client.png', cleanImage);
+    window.assets.clientAngry = loadImage('assets/client-angry.png', cleanImage);
+
     // UI - These often have the bad backgrounds
     window.assets.frame = loadImage('assets/blue_frame.png', cleanImage);
     window.assets.gauge = loadImage('assets/flame_gauge.png', cleanImage);

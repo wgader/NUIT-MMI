@@ -49,23 +49,25 @@ export default class BurgerBuilder {
         // Frame is at 10,10, size w-20, 80.
         // Center text and icons there.
 
-        let startX = width / 2 - (this.currentOrder.length * 50) / 2;
+        let totalWidth = width - 100; // leave margins on sides
+        let spacing = totalWidth / (this.currentOrder.length + 1);
+        let startX = spacing;
 
         for (let i = 0; i < this.currentOrder.length; i++) {
             let ing = this.currentOrder[i];
             let idx = this.ingMap[ing];
-            let x = startX + i * 50;
+            let x = startX + i * spacing;
             let y = 55 + (this.ingYOffset[ing] || 0); // Adjust per-ingredient to visually align
             // Frame y=35 to 115. Center is 75. Sprite is 40x40. 
             // So y=55 puts it from 55 to 95. Perfect.
 
-            // Draw Sprite
+            // Draw Sprite (use 40x40 to match layout)
             if (window.assets && window.assets.ingredients) {
                 let sW = window.assets.ingredients.width / 3;
                 let sH = window.assets.ingredients.height / 2;
                 let col = idx % 3;
                 let row = Math.floor(idx / 3);
-                image(window.assets.ingredients, x, y, 40, 40, col * sW, row * sH, sW, sH);
+                image(window.assets.ingredients, x - 20, y - 20, 80, 80, col * sW, row * sH, sW, sH);
             }
 
             // Checkmark
@@ -127,11 +129,11 @@ export default class BurgerBuilder {
                 let col = idx % 3;
                 let row = Math.floor(idx / 3);
                 let iconYOffset = this.ingYOffset[b.ing] || 0;
-                const buttonIconOffset = 16; // increased to lower icons more
+                let buttonOffset = (b.ing === 'PATTY') ? -24 : 0; // negative to pull up
                 image(
                     window.assets.ingredients,
                     x - 25,
-                    y - 25 + iconYOffset + buttonIconOffset,
+                    y - 25 + iconYOffset + 16 + buttonOffset,
                     50,
                     50,
                     col * sW,

@@ -2,6 +2,7 @@ import SquatDetector from './SquatDetector.js';
 import BurgerBuilder from './BurgerBuilder.js';
 import ParticleSystem from './ParticleSystem.js';
 import Animator from './Animator.js';
+import Client from './Client.js';
 
 export default class GameState {
     constructor() {
@@ -15,7 +16,7 @@ export default class GameState {
         };
         this.currentPhase = this.phases.MENU;
         this.score = 0;
-        this.time = 15;
+        this.time = 30;
         this.instructionsTimer = 0; // NEW: tracks frames for auto-advance
         this.burgersCompleted = 0;
 
@@ -23,6 +24,7 @@ export default class GameState {
         this.squatDetector = new SquatDetector();
         this.burgerBuilder = new BurgerBuilder();
         this.particles = new ParticleSystem();
+        this.client = new Client();
     }
 
     changePhase(newPhase) {
@@ -33,12 +35,15 @@ export default class GameState {
             this.squatDetector.startCalibration();
         } else if (newPhase === this.phases.SQUATTING) {
             this.squatDetector.resetPower();
+            this.client.reset();
         } else if (newPhase === this.phases.ASSEMBLING) {
             this.burgerBuilder.newOrder();
+            this.client.reset();
         }
     }
 
     update() {
+        this.client.update();
         this.particles.update();
 
         // Timer Logic
@@ -78,6 +83,13 @@ export default class GameState {
                 break;
             case this.phases.ASSEMBLING:
                 this.burgerBuilder.update();
+                
+                // Check if client left angry (timeout game over)
+                if (this.client.hasLeft()) {
+                    this.currentPhase = this.phases.GAMEOVER;
+                    break;
+                }
+                
                 if (this.burgerBuilder.orderComplete) {
                     this.score += 100;
                     this.time += 10;
@@ -89,7 +101,8 @@ export default class GameState {
             case this.phases.GAMEOVER:
                 if (kb.presses('space')) {
                     this.score = 0;
-                    this.time = 60;
+                    this.tlient.reset();
+                    this.cime = 60;
                     this.changePhase(this.phases.MENU);
                 }
                 break;
@@ -104,9 +117,16 @@ export default class GameState {
             image(window.assets.bg, 0, 0, width, height);
         }
 
-        // --- 2. Chef ---
+        // --- 2. Client (Customer) ---
+        // Only show during assembly phase (after squatting)
+        if (this.currentPhase === this.phases.ASSEMBLING) {
+            this.client.draw();
+        }
+
+        // --- 3. Chef ---
         this.drawChef();
 
+        // --- 4
         // --- 3. UI Layout ---
         this.drawLayout();
 
