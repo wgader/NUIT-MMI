@@ -7,6 +7,7 @@ export default class GameState {
     constructor() {
         this.phases = {
             MENU: 'MENU',
+            INSTRUCTIONS: 'INSTRUCTIONS', // NEW
             CALIBRATION: 'CALIBRATION',
             SQUATTING: 'SQUATTING',
             ASSEMBLING: 'ASSEMBLING',
@@ -14,7 +15,9 @@ export default class GameState {
         };
         this.currentPhase = this.phases.MENU;
         this.score = 0;
-        this.time = 45; // Start time
+        this.time = 60;
+        this.instructionsTimer = 0; // NEW: tracks frames for auto-advance
+        this.burgersCompleted = 0;
 
         // Managers
         this.squatDetector = new SquatDetector();
@@ -24,9 +27,15 @@ export default class GameState {
 
     changePhase(newPhase) {
         this.currentPhase = newPhase;
-        if (newPhase === this.phases.CALIBRATION) this.squatDetector.startCalibration();
-        else if (newPhase === this.phases.SQUATTING) this.squatDetector.resetPower();
-        else if (newPhase === this.phases.ASSEMBLING) this.burgerBuilder.newOrder();
+        if (newPhase === this.phases.INSTRUCTIONS) {
+            this.instructionsTimer = 0; // Reset timer
+        } else if (newPhase === this.phases.CALIBRATION) {
+            this.squatDetector.startCalibration();
+        } else if (newPhase === this.phases.SQUATTING) {
+            this.squatDetector.resetPower();
+        } else if (newPhase === this.phases.ASSEMBLING) {
+            this.burgerBuilder.newOrder();
+        }
     }
 
     update() {
@@ -46,7 +55,14 @@ export default class GameState {
 
         switch (this.currentPhase) {
             case this.phases.MENU:
-                if (kb.presses('space')) this.changePhase(this.phases.CALIBRATION);
+                if (kb.presses('space')) this.changePhase(this.phases.INSTRUCTIONS);
+                break;
+            case this.phases.INSTRUCTIONS:
+                this.instructionsTimer++;
+                // Auto-advance after 4 seconds (240 frames at 60fps)
+                if (this.instructionsTimer > 480) {
+                    this.changePhase(this.phases.CALIBRATION);
+                }
                 break;
             case this.phases.CALIBRATION:
                 this.squatDetector.update();
@@ -63,12 +79,13 @@ export default class GameState {
                     this.time += 10;
                     this.particles.emit(width / 2, height / 2, 'FIRE');
                     this.changePhase(this.phases.SQUATTING);
+                    this.burgersCompleted++;
                 }
                 break;
             case this.phases.GAMEOVER:
                 if (kb.presses('space')) {
                     this.score = 0;
-                    this.time = 45;
+                    this.time = 60;
                     this.changePhase(this.phases.MENU);
                 }
                 break;
@@ -100,8 +117,18 @@ export default class GameState {
     }
 
     drawChef() {
-        let cx = 110;
-        let cy = height - 200;
+        // Position the chef directly beneath the left power bar
+        const gaugeX = 10;
+        const gaugeY = 140;
+        const gaugeW = 90;
+        const gaugeH = 300;
+        const chefW = 140;
+        const chefH = 140;
+        const padding = 10; // small gap below the gauge
+
+        // Center chef horizontally under the gauge and place just below it
+        let cx = gaugeX + gaugeW / 3 - chefW / 2.5;
+        let cy = gaugeY + gaugeH + padding;
 
         let sprite = window.assets.chefDebout;
         if (this.squatDetector.squatState === 'DOWN') {
@@ -109,7 +136,7 @@ export default class GameState {
         }
 
         if (sprite) {
-            image(sprite, cx, cy, 140, 140);
+            image(sprite, cx, cy, chefW, chefH);
         }
     }
 
@@ -127,7 +154,7 @@ export default class GameState {
         let s = this.time % 60;
         let timeStr = `${m}:${s < 10 ? '0' + s : s}`;
 
-        text(`SCORE: ${this.score}      TIME: ${timeStr}`, width / 2, 15);
+        text(`BURGERS: ${this.burgersCompleted}      TIME: ${timeStr}`, width / 2, 15);
         textStyle(NORMAL); // Reset
 
         // --- 2. Recipe Frame (Pushed down) ---
@@ -143,22 +170,31 @@ export default class GameState {
 
     drawGaugeFill() {
         // Gauge Frame at x=10, y=140, w=90, h=300
-        // Inner area approx x=35, y=165, w=40, h=250
+        // Inner area will be centered inside the frame
 
         let power = this.squatDetector.power;
+        // Inner gauge geometry (tweak innerW to change width)
+        const gaugeX = 10;
+        const gaugeW = 90;
+        const innerW = 30; // width of the progression bar
+        const innerX = gaugeX + Math.round((gaugeW - innerW) / 2);
+
+        // Reduce height so it doesn't overlap (adjust as needed)
+        const maxH = 200;      // <- lowered from 240
+        const innerTop = 200;  // <- top Y for the max-height area (was ~170)
+
         if (power > 0) {
-            let maxH = 240;
             let h = map(power, 0, 100, 0, maxH);
 
             let c = lerpColor(color(255, 0, 0), color(255, 255, 0), power / 100);
 
             fill(c); noStroke();
-            rect(35, 170 + maxH - h, 40, h);
+            rect(innerX, innerTop + (maxH - h), innerW, h);
         }
 
-        // Label
+        // Label (keeps centered over the inner bar)
         fill(255); textAlign(CENTER); textSize(12);
-        text("POWER", 55, 135);
+        text("POWER", innerX + innerW / 2, 140);
     }
 
     drawPhaseOverlays() {
@@ -166,17 +202,26 @@ export default class GameState {
             case this.phases.MENU:
                 this.drawOverlay("PANIC BURGER", "PRESS SPACE TO START");
                 break;
+            case this.phases.INSTRUCTIONS:
+                this.drawInstructionsOverlay();
+                break;
             case this.phases.CALIBRATION:
                 this.drawOverlay("CALIBRATION", "STAND UPRIGHT");
                 this.squatDetector.drawSkeleton();
                 break;
             case this.phases.GAMEOVER:
-                this.drawOverlay("GAME OVER", `FINAL SCORE: ${this.score}`);
+                this.drawOverlay("GAME OVER", `BURGERS: ${this.burgersCompleted}`);
+                break;
+            case this.phases.SQUATTING:
+                this.drawSquattingOverlay();
                 break;
         }
     }
 
     drawOverlay(title, sub) {
+        // Use the same font as the loading text
+        // (Google font is included in index.html)
+        textFont('Press Start 2P');
         fill(0, 0, 0, 200);
         rect(0, 0, width, height);
         textAlign(CENTER);
@@ -184,5 +229,59 @@ export default class GameState {
         text(title, width / 2, height / 2 - 20);
         textSize(20);
         text(sub, width / 2, height / 2 + 30);
+        // Optional: reset if other UI should use default
+        // textFont('sans-serif');
+    }
+
+    drawInstructionsOverlay() {
+        textFont('Press Start 2P');
+        fill(0, 0, 0, 200);
+        rect(0, 0, width, height);
+        textAlign(CENTER);
+        
+        fill(255, 255, 0); 
+        textSize(48);
+        text("HOW TO PLAY", width / 2, 60);
+        
+        fill(255);
+        textSize(20);
+        let y = 140;
+        let lineHeight = 30;
+        let sectionGap = 20;
+        
+        // Step 1
+        text("1. SQUAT to fill the", width / 2, y);
+        y += lineHeight;
+        text("   POWER BAR", width / 2, y);
+        y += lineHeight + sectionGap;
+        
+        // Step 2
+        text("2. When FULL, assemble", width / 2, y);
+        y += lineHeight;
+        text("   the burger using the", width / 2, y);
+        y += lineHeight;
+        text("   BUTTONS to match the", width / 2, y);
+        y += lineHeight;
+        text("   order at the top", width / 2, y);
+        y += lineHeight + sectionGap;
+        
+        // Step 3
+        text("3. Complete orders before", width / 2, y);
+        y += lineHeight;
+        text("   time runs out!", width / 2, y);
+        
+        // // Countdown indicator
+        // y = height - 80;
+        // textSize(14);
+        // fill(255, 255, 0);
+        // text("Starting soon...", width / 2, y);
+    }
+
+    drawSquattingOverlay() {
+        textFont('Press Start 2P');
+        fill(255); 
+        textAlign(CENTER, CENTER);
+        textSize(60);
+        text("SQUAT", width / 2, height / 2);
     }
 }

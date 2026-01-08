@@ -6,6 +6,8 @@ export default class BurgerBuilder {
         // Map ingredients to sprite sheet indices
         this.ingMap = { 'TOMATO': 5, 'LETTUCE': 4, 'CHEESE': 3, 'PATTY': 2 };
         this.ingredients = ['TOMATO', 'LETTUCE', 'CHEESE', 'PATTY'];
+        // Visual vertical offsets to compensate sprite baseline differences
+        this.ingYOffset = { 'TOMATO': 0, 'LETTUCE': 0, 'CHEESE': 0, 'PATTY': -12 };
     }
 
     newOrder() {
@@ -53,7 +55,7 @@ export default class BurgerBuilder {
             let ing = this.currentOrder[i];
             let idx = this.ingMap[ing];
             let x = startX + i * 50;
-            let y = 55; // Pushed down (Frame is now at y=35, height=80. Center approx y=75)
+            let y = 55 + (this.ingYOffset[ing] || 0); // Adjust per-ingredient to visually align
             // Frame y=35 to 115. Center is 75. Sprite is 40x40. 
             // So y=55 puts it from 55 to 95. Perfect.
 
@@ -117,18 +119,30 @@ export default class BurgerBuilder {
             fill(b.color); stroke(255); strokeWeight(4);
             ellipse(x, y, 70, 70);
 
-            // Icon Inside
+            // Icon Inside (apply per-ingredient Y offset, moved slightly lower)
             if (window.assets && window.assets.ingredients) {
                 let idx = this.ingMap[b.ing];
                 let sW = window.assets.ingredients.width / 3;
                 let sH = window.assets.ingredients.height / 2;
                 let col = idx % 3;
                 let row = Math.floor(idx / 3);
-                image(window.assets.ingredients, x - 25, y - 25, 50, 50, col * sW, row * sH, sW, sH);
+                let iconYOffset = this.ingYOffset[b.ing] || 0;
+                const buttonIconOffset = 16; // increased to lower icons more
+                image(
+                    window.assets.ingredients,
+                    x - 25,
+                    y - 25 + iconYOffset + buttonIconOffset,
+                    50,
+                    50,
+                    col * sW,
+                    row * sH,
+                    sW,
+                    sH
+                );
             }
         });
 
         fill(255); noStroke(); textAlign(CENTER); textSize(16);
-        text("HIT ARROWS TO ASSEMBLE!", width / 2, height - 100);
+        text("HIT THE BUTTONS TO ASSEMBLE THE BURGER", width / 2, height - 100);
     }
 }
