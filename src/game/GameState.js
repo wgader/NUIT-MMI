@@ -15,7 +15,7 @@ export default class GameState {
         };
         this.currentPhase = this.phases.MENU;
         this.score = 0;
-        this.time = 60;
+        this.time = 15;
         this.instructionsTimer = 0; // NEW: tracks frames for auto-advance
         this.burgersCompleted = 0;
 
@@ -59,6 +59,10 @@ export default class GameState {
                 break;
             case this.phases.INSTRUCTIONS:
                 this.instructionsTimer++;
+                if (kb.presses('space')) {
+                    this.changePhase(this.phases.CALIBRATION);
+                    break;
+                }
                 // Auto-advance after 4 seconds (240 frames at 60fps)
                 if (this.instructionsTimer > 480) {
                     this.changePhase(this.phases.CALIBRATION);
@@ -210,7 +214,7 @@ export default class GameState {
                 this.squatDetector.drawSkeleton();
                 break;
             case this.phases.GAMEOVER:
-                this.drawOverlay("GAME OVER", `BURGERS: ${this.burgersCompleted}`);
+                this.drawGameOverOverlay();
                 break;
             case this.phases.SQUATTING:
                 this.drawSquattingOverlay();
@@ -270,11 +274,11 @@ export default class GameState {
         y += lineHeight;
         text("   time runs out!", width / 2, y);
         
-        // // Countdown indicator
-        // y = height - 80;
-        // textSize(14);
-        // fill(255, 255, 0);
-        // text("Starting soon...", width / 2, y);
+        // Prompt to skip
+        y = height - 70;
+        textSize(18);
+        fill(255, 255, 0);
+        text("PRESS SPACE TO START", width / 2, y);
     }
 
     drawSquattingOverlay() {
@@ -283,5 +287,24 @@ export default class GameState {
         textAlign(CENTER, CENTER);
         textSize(60);
         text("SQUAT", width / 2, height / 2);
+    }
+
+    drawGameOverOverlay() {
+        textFont('Press Start 2P');
+        fill(0, 0, 0, 200);
+        rect(0, 0, width, height);
+        textAlign(CENTER);
+
+        fill(255);
+        textSize(40);
+        text("GAME OVER", width / 2, height / 2 - 60);
+
+        fill(255, 255, 0);
+        textSize(28);
+        text(`BURGERS: ${this.burgersCompleted}`, width / 2, height / 2 - 20);
+
+        fill(255);
+        textSize(18);
+        text("PRESS SPACE TO PLAY AGAIN", width / 2, height / 2 + 40);
     }
 }
