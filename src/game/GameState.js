@@ -101,8 +101,8 @@ export default class GameState {
             case this.phases.GAMEOVER:
                 if (kb.presses('space')) {
                     this.score = 0;
-                    this.tlient.reset();
-                    this.cime = 60;
+                    this.client.reset();
+                    this.time = 60;
                     this.changePhase(this.phases.MENU);
                 }
                 break;
@@ -133,6 +133,7 @@ export default class GameState {
         // --- 4
         // --- 3. UI Layout ---
         this.drawLayout();
+        this.drawIngFrame();
 
         // --- 4. Interactive Elements ---
         if (this.currentPhase === this.phases.ASSEMBLING) {
@@ -203,6 +204,13 @@ export default class GameState {
         // --- 3. Left Flame Gauge ---
         if (window.assets && window.assets.gauge) {
             image(window.assets.gauge, 10, 140, 90, 300);
+        }
+    }
+
+    drawIngFrame() {
+        if (window.assets && window.assets.ingFrame) {
+            // Draw frame around the top ingredients area
+            image(window.assets.ingFrame, 10, 35, width - 20, 80);
         }
     }
 
@@ -346,12 +354,12 @@ export default class GameState {
 
     drawCityBg() {
         if (window.assets && window.assets.cityBg) {
-            const displayWidth = 1200; // set width, height will auto-scale
+            const displayWidth = 1200; 
             const aspectRatio = window.assets.cityBg.height / window.assets.cityBg.width;
             const displayHeight = displayWidth * aspectRatio;
             
-            const x = width - displayWidth - 40; // center-right with margin
-            const y = height / 2 - displayHeight / 2 + 20; // centered vertically
+            const x = width - displayWidth - 40; 
+            const y = height / 2 - displayHeight / 2 + 20;
             
             image(window.assets.cityBg, x, y, displayWidth, displayHeight);
         }

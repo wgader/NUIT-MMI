@@ -97,6 +97,9 @@ window.preload = function () {
     // Ingredients
     window.assets.ingredients = loadImage('assets/ingredients.png', cleanImage);
 
+    //ingredients frame
+    window.assets.ingFrame = loadImage('assets/frame.png', cleanImage);
+
     // CHEF: Load the separate files as requested
     window.assets.chefDebout = loadImage('assets/chef-debout.png', cleanImage);
     window.assets.chefSquat = loadImage('assets/chef-squat.png', cleanImage);
@@ -106,7 +109,6 @@ window.preload = function () {
     window.assets.chefGym = loadImage('assets/chef_gym.png', cleanImage);
 
     // Background (Opaque)
-    //window.assets.bg = loadImage('assets/background.png');
     window.assets.cityBg = loadImage('assets/city.png', cleanImage);
 
     // Characters
