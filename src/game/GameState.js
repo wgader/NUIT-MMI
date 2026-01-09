@@ -26,6 +26,8 @@ export default class GameState {
         this.particles = new ParticleSystem();
         this.client = null;
         this.leavingClients = [];
+        this.musicStarted = false;
+        this.cookingSoundStarted = false;
     }
 
     resetRun() {
@@ -46,8 +48,14 @@ export default class GameState {
         } else if (newPhase === this.phases.SQUATTING) {
             this.squatDetector.resetPower();
             this.ensureActiveClient();
+            this.stopCookingSound();
         } else if (newPhase === this.phases.ASSEMBLING) {
             this.burgerBuilder.newOrder();
+            this.startCookingSound();
+        } else if (newPhase === this.phases.GAMEOVER) {
+            this.stopBackgroundMusic();
+            this.stopCookingSound();
+            this.playLoseSound();
         }
     }
 
@@ -65,7 +73,8 @@ export default class GameState {
                 this.time--;
             }
             if (this.time <= 0) {
-                this.currentPhase = this.phases.GAMEOVER;
+                this.stopBackgroundMusic();
+                this.changePhase(this.phases.GAMEOVER);
             }
         }
 
@@ -73,12 +82,14 @@ export default class GameState {
             case this.phases.MENU:
                 if (kb.presses('space')) {
                     this.resetRun();
+                    this.playBackgroundMusic();
                     this.changePhase(this.phases.INSTRUCTIONS);
                 }
                 break;
             case this.phases.INSTRUCTIONS:
                 this.instructionsTimer++;
                 if (kb.presses('space')) {
+                    this.playBackgroundMusic();
                     this.changePhase(this.phases.CALIBRATION);
                     break;
                 }
@@ -100,11 +111,13 @@ export default class GameState {
                 
                 // Check if client left angry (timeout game over)
                 if (this.client && this.client.hasLeft()) {
-                    this.currentPhase = this.phases.GAMEOVER;
+                    this.changePhase(this.phases.GAMEOVER);
                     break;
                 }
                 
                 if (this.burgerBuilder.orderComplete) {
+                    this.playCompleteSound();
+                    this.stopCookingSound();
                     this.sendCurrentClientAway();
                     this.spawnNextClient();
                     this.score += 100;
@@ -117,6 +130,7 @@ export default class GameState {
             case this.phases.GAMEOVER:
                 if (kb.presses('space')) {
                     this.resetRun();
+                    this.playBackgroundMusic();
                     this.changePhase(this.phases.MENU);
                 }
                 break;
@@ -132,6 +146,8 @@ export default class GameState {
     spawnNextClient() {
         const incoming = new Client();
         incoming.reset();
+        // Set callback to play angry sound when this client gets angry
+        incoming.onAngry = () => this.playAngrySound();
         this.client = incoming;
     }
 
@@ -140,6 +156,137 @@ export default class GameState {
         this.client.startLeaving();
         this.leavingClients.push(this.client);
         this.client = null;
+    }
+
+    playBackgroundMusic() {
+        if (this.musicStarted) return;
+        const bg = window.assets && window.assets.backgroundMusic;
+        if (bg && typeof bg.play === 'function') {
+            try {
+                bg.setLoop(true);
+                bg.setVolume(0.15);
+                // Delay slightly to ensure canvas context is ready
+                setTimeout(() => {
+                    if (bg && typeof bg.play === 'function') {
+                        try {
+                            bg.play();
+                            this.musicStarted = true;
+                        } catch (e) {
+                            // Silently ignore
+                        }
+                    }
+                }, 0);
+            } catch (e) {
+                // Silently ignore sound errors
+            }
+        }
+    }
+
+    stopBackgroundMusic() {
+        const bg = window.assets && window.assets.backgroundMusic;
+        if (bg && typeof bg.stop === 'function') {
+            try {
+                bg.stop();
+            } catch (e) {
+                // Silently ignore errors
+            }
+        }
+        this.musicStarted = false;
+    }
+
+    startCookingSound() {
+        if (this.cookingSoundStarted) return;
+        const cook = window.assets && window.assets.cookingSound;
+        if (cook && typeof cook.play === 'function') {
+            try {
+                cook.setLoop(true);
+                cook.setVolume(0.5);
+                setTimeout(() => {
+                    if (cook && typeof cook.play === 'function') {
+                        try {
+                            cook.play();
+                            this.cookingSoundStarted = true;
+                        } catch (e) {
+                            // Silently ignore
+                        }
+                    }
+                }, 0);
+            } catch (e) {
+                // Silently ignore errors
+            }
+        }
+    }
+
+    stopCookingSound() {
+        const cook = window.assets && window.assets.cookingSound;
+        if (cook && typeof cook.stop === 'function') {
+            try {
+                cook.stop();
+            } catch (e) {
+                // Silently ignore errors
+            }
+        }
+        this.cookingSoundStarted = false;
+    }
+
+    playCompleteSound() {
+        const complete = window.assets && window.assets.completeSound;
+        if (complete && typeof complete.play === 'function') {
+            try {
+                complete.setVolume(2.0);
+                setTimeout(() => {
+                    if (complete && typeof complete.play === 'function') {
+                        try {
+                            complete.play();
+                        } catch (e) {
+                            // Silently ignore
+                        }
+                    }
+                }, 0);
+            } catch (e) {
+                // Silently ignore errors
+            }
+        }
+    }
+
+    playLoseSound() {
+        const lose = window.assets && window.assets.loseSound;
+        if (lose && typeof lose.play === 'function') {
+            try {
+                lose.setVolume(1.2);
+                setTimeout(() => {
+                    if (lose && typeof lose.play === 'function') {
+                        try {
+                            lose.play();
+                        } catch (e) {
+                            // Silently ignore
+                        }
+                    }
+                }, 0);
+            } catch (e) {
+                // Silently ignore errors
+            }
+        }
+    }
+
+    playAngrySound() {
+        const angry = window.assets && window.assets.angrySound;
+        if (angry && typeof angry.play === 'function') {
+            try {
+                angry.setVolume(1.2);
+                setTimeout(() => {
+                    if (angry && typeof angry.play === 'function') {
+                        try {
+                            angry.play();
+                        } catch (e) {
+                            // Silently ignore
+                        }
+                    }
+                }, 0);
+            } catch (e) {
+                // Silently ignore errors
+            }
+        }
     }
 
     draw() {

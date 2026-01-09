@@ -11,6 +11,7 @@ export default class Client {
         this.arrivalTime = null;
         this.waitTime = 0;
         this.clientType = 'client'; // Will be randomly set on reset
+        this.onAngry = null; // Callback when client gets angry
     }
 
     reset() {
@@ -62,6 +63,7 @@ export default class Client {
             // After 5 seconds (300 frames at 60fps), get angry
             if (this.waitTime >= 300 && !this.isAngry) {
                 this.isAngry = true;
+                if (this.onAngry) this.onAngry();
             }
 
             // After 10 seconds total (600 frames), leave

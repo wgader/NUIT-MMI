@@ -61,6 +61,7 @@ export default class SquatDetector {
         // If webcam fails, press 'S' to squat manually
         if (kb.presses('s')) {
             this.addPower(20);
+            this.playEffortSound();
             this.debugMsg = "MANUAL SQUAT (S key)";
             return;
         }
@@ -107,6 +108,7 @@ export default class SquatDetector {
                 if (currentY < this.standY + this.squatThreshold * 0.5) {
                     this.squatState = 'UP';
                     this.addPower(20); // More power per squat
+                    this.playEffortSound();
                     this.debugMsg = "GREAT! +POWER";
                 } else {
                     this.debugMsg = "STAND UP!";
@@ -117,6 +119,31 @@ export default class SquatDetector {
 
     addPower(amount) {
         this.power = constrain(this.power + amount, 0, 100);
+    }
+
+    playEffortSound() {
+        try {
+            const sounds = window.assets && window.assets.effortSounds;
+            if (!sounds || !sounds.length) return;
+            // Use Math.random instead of p5's random() to avoid canvas context issues
+            const idx = Math.floor(Math.random() * sounds.length);
+            const chosen = sounds[idx];
+            if (chosen && typeof chosen.play === 'function') {
+                chosen.setVolume(2.0);
+                // Delay slightly to ensure canvas context is ready
+                setTimeout(() => {
+                    if (chosen && typeof chosen.play === 'function') {
+                        try {
+                            chosen.play();
+                        } catch (e) {
+                            // Silently ignore
+                        }
+                    }
+                }, 0);
+            }
+        } catch (e) {
+            // Silently ignore sound errors to prevent game crashes
+        }
     }
 
     draw() {
