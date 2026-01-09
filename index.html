@@ -22,8 +22,7 @@
 </head>
 
 <body>
-    <header
-        class="relative flex h-screen w-full flex-col items-center justify-center overflow-hidden bg-[url('/images/Background.svg')] bg-cover">
+    <header class="relative flex h-screen w-full flex-col items-center justify-center overflow-hidden">
         <style>
             @keyframes fall {
                 to {
@@ -38,7 +37,7 @@
             }
         </style>
         <div
-            class="from-bg-dark to-bg-dark relative z-10 flex h-full w-full flex-col items-center justify-center bg-gradient-to-r">
+            class="from-bg-dark to-bg-dark relative z-10 flex h-full w-full flex-col items-center justify-center bg-gradient-to-r bg-[url('images/Background.svg')] bg-cover bg-center">
             <h1 class="animate-bounce text-7xl font-bold text-white">
                 Panic Burger
             </h1>
@@ -47,12 +46,12 @@
         </div>
         <script>
             const ingredientList = [
-                "/images/fromage.svg",
-                "/images/hamburger.svg",
-                "/images/pain.svg",
-                "/images/salad.svg",
-                "/images/tomate.svg",
-                "/images/steak.svg",
+                "images/fromage.svg",
+                "images/hamburger.svg",
+                "images/pain.svg",
+                "images/salad.svg",
+                "images/tomate.svg",
+                "images/steak.svg",
             ];
 
             setInterval(() => {
