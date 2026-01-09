@@ -1,0 +1,179 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Panic Burger - Landing Page</title>
+    <link rel="icon" href="./images/chef-cuisine 2.png" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'bg-dark': 'rgba(0, 0, 0, 0.22)',
+                    }
+                }
+            }
+        }
+    </script>
+  <link rel="stylesheet" crossorigin href="./assets/main-Cv5CBAfu.css">
+</head>
+
+<body>
+    <header
+        class="relative flex h-screen w-full flex-col items-center justify-center overflow-hidden bg-[url('/images/Background.svg')] bg-cover">
+        <style>
+            @keyframes fall {
+                to {
+                    transform: translateY(100vh) rotate(360deg);
+                }
+            }
+
+            .falling-burger {
+                animation: fall linear infinite;
+                position: absolute;
+                top: -50px;
+            }
+        </style>
+        <div
+            class="from-bg-dark to-bg-dark relative z-10 flex h-full w-full flex-col items-center justify-center bg-gradient-to-r">
+            <h1 class="animate-bounce text-7xl font-bold text-white">
+                Panic Burger
+            </h1>
+            <a href="game.html"
+                class="mt-10 rounded-full border-4 border-white px-4 py-3 text-3xl font-bold text-white transition hover:scale-125 hover:cursor-pointer hover:bg-white hover:text-indigo-500">PLAY</a>
+        </div>
+        <script>
+            const ingredientList = [
+                "/images/fromage.svg",
+                "/images/hamburger.svg",
+                "/images/pain.svg",
+                "/images/salad.svg",
+                "/images/tomate.svg",
+                "/images/steak.svg",
+            ];
+
+            setInterval(() => {
+                const burger = document.createElement("img");
+                burger.src =
+                    ingredientList[Math.floor(Math.random() * ingredientList.length)];
+                burger.className = "falling-burger";
+                burger.style.left = Math.random() * 100 + "%";
+                burger.style.width = "50px";
+                burger.style.animationDuration = 3 + Math.random() * 2 + "s";
+                document.querySelector("header").appendChild(burger);
+                setTimeout(() => burger.remove(), 5000);
+            }, 500);
+        </script>
+    </header>
+    <main class="flex h-fit w-full flex-col px-20">
+        <section class="mb-32 flex h-fit w-full flex-col">
+            <h2 class="my-10 text-5xl">The Game</h2>
+            <div class="mt-10 flex flex-col gap-6 px-20">
+                <div class="rounded-lg border border-gray-300 p-6 transition hover:border-red-600 hover:shadow-lg">
+                    <h3 class="mb-2 text-2xl font-bold">Overview</h3>
+                    <p class="text-gray-700">
+                        Welcome to Panic Burger, an exciting arcade-style cooking game
+                        that combines fast-paced gameplay with innovative controller
+                        technology.
+                    </p>
+                    <div class="mt-4 flex gap-2">
+                        <span class="rounded-full bg-red-100 px-3 py-1 text-sm font-semibold text-red-600">Game</span>
+                        <span class="rounded-full bg-red-100 px-3 py-1 text-sm font-semibold text-red-600">Fun</span>
+                    </div>
+                </div>
+                <div class="rounded-lg border border-gray-300 p-6 transition hover:border-green-600 hover:shadow-lg">
+                    <h3 class="mb-2 text-2xl font-bold">Panic Burger</h3>
+                    <p class="text-gray-700">
+                        A fast-paced cooking game where you manage burger orders under
+                        pressure. Gather energy by doing sport moves like squats and use
+                        your keyboard or Makey Makey controller to assemble ingredients
+                        quickly and satisfy hungry customers.
+                    </p>
+                    <div class="mt-4 flex gap-2">
+                        <span
+                            class="rounded-full bg-green-100 px-3 py-1 text-sm font-semibold text-green-600">Cooking</span>
+                        <span
+                            class="rounded-full bg-green-100 px-3 py-1 text-sm font-semibold text-green-600">Arcade</span>
+                    </div>
+                </div>
+
+                <div class="rounded-lg border border-gray-300 p-6 transition hover:border-yellow-600 hover:shadow-lg">
+                    <h3 class="mb-2 text-2xl font-bold">Game Features</h3>
+                    <ul class="list-inside list-disc space-y-1 text-gray-700">
+                        <li>Real-time energy management</li>
+                        <li>Mo-cap integration</li>
+                        <li>Progressive difficulty levels</li>
+                        <li>Leaderboard system</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+        <section class="mb-32 flex h-fit w-full flex-col gap-32">
+            <h2 class="mt-10 text-5xl">Technologies used</h2>
+            <div class="mt-10 flex w-full flex-row justify-center gap-8">
+                <div
+                    class="flex min-h-72 min-w-72 flex-col items-center justify-center rounded-lg border border-gray-300 p-6 transition hover:border-red-600 hover:bg-red-100">
+                    <svg class="mb-4 h-28 w-28" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 9h2l1-2h12l1 2h2a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2v-10a2 2 0 0 1 2-2z">
+                        </path>
+                        <circle cx="12" cy="15" r="4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+                        </circle>
+                    </svg>
+                    <h3 class="text-lg font-bold">ML5.js</h3>
+                </div>
+                <div
+                    class="flex min-h-72 min-w-72 flex-col items-center justify-center rounded-lg border border-gray-300 p-6 transition hover:border-green-600 hover:bg-green-100">
+                    <svg class="mb-4 h-28 w-28" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <rect x="2" y="2" width="20" height="20" rx="2" stroke-linecap="round" stroke-linejoin="round"
+                            stroke-width="2"></rect>
+                        <circle cx="6" cy="6" r="1" fill="currentColor"></circle>
+                        <circle cx="18" cy="6" r="1" fill="currentColor"></circle>
+                        <circle cx="6" cy="18" r="1" fill="currentColor"></circle>
+                        <circle cx="18" cy="18" r="1" fill="currentColor"></circle>
+                        <rect x="9" y="9" width="6" height="6" stroke-linecap="round" stroke-linejoin="round"
+                            stroke-width="1.5"></rect>
+                        <line x1="3" y1="12" x2="21" y2="12" stroke-width="1.5" stroke-linecap="round"></line>
+                        <line x1="12" y1="3" x2="12" y2="21" stroke-width="1.5" stroke-linecap="round"></line>
+                        <circle cx="6" cy="12" r="0.5" fill="currentColor"></circle>
+                        <circle cx="18" cy="12" r="0.5" fill="currentColor"></circle>
+                        <circle cx="12" cy="6" r="0.5" fill="currentColor"></circle>
+                        <circle cx="12" cy="18" r="0.5" fill="currentColor"></circle>
+                    </svg>
+                    <h3 class="text-lg font-bold">Makey Makey</h3>
+                </div>
+                <div
+                    class="flex min-h-72 min-w-72 flex-col items-center justify-center rounded-lg border border-gray-300 p-6 transition hover:border-yellow-600 hover:bg-yellow-100">
+                    <svg class="mb-4 h-28 w-28" viewBox="0 0 24 24" fill="currentColor">
+                        <text x="12" y="16" font-size="20" font-weight="bold" text-anchor="middle">
+                            JS
+                        </text>
+                    </svg>
+                    <h3 class="text-lg font-bold">JavaScript</h3>
+                </div>
+            </div>
+        </section>
+        <section class="flex h-fit w-full flex-col pb-32">
+            <h2 class="mt-10 text-5xl">Future improvements</h2>
+            <ul class="mt-10 list-disc pl-8">
+                <li class="mb-2 text-xl">Add more recipes and challenges</li>
+                <li class="mb-2 text-xl">Enhance graphics and animations</li>
+                <li class="mb-2 text-xl">Add multiplayer functionality</li>
+            </ul>
+        </section>
+    </main>
+    <footer class="flex flex-row items-center justify-around pb-20">
+        <h4 class="text-red-600">William Brooks</h4>
+        <h4 class="text-green-600">Wahel Gader</h4>
+        <h4 class="text-yellow-600">Emmanuel Regaudie</h4>
+        <h4 class="text-red-600">Arda Gunduz</h4>
+        <h4 class="text-green-600">Alexis Mauguain</h4>
+        <h4 class="text-yellow-600">Valentin Poinet</h4>
+        <h4 class="text-red-600">Arthur Desmoulins</h4>
+    </footer>
+</body>
+
+</html>
