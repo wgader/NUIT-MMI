@@ -26,6 +26,11 @@ export default class Client {
         this.clientType = Math.random() > 0.5 ? 'client' : 'client2';
     }
 
+    startLeaving() {
+        this.isLeaving = true;
+        this.isWalking = false;
+    }
+
     update() {
         if (this.isLeaving) {
             // Walk away to the left

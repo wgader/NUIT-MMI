@@ -24,7 +24,17 @@ export default class GameState {
         this.squatDetector = new SquatDetector();
         this.burgerBuilder = new BurgerBuilder();
         this.particles = new ParticleSystem();
-        this.client = new Client();
+        this.client = null;
+        this.leavingClients = [];
+    }
+
+    resetRun() {
+        this.score = 0;
+        this.burgersCompleted = 0;
+        this.time = 15;
+        this.client = null;
+        this.leavingClients = [];
+        this.squatDetector.resetPower();
     }
 
     changePhase(newPhase) {
@@ -35,15 +45,16 @@ export default class GameState {
             this.squatDetector.startCalibration();
         } else if (newPhase === this.phases.SQUATTING) {
             this.squatDetector.resetPower();
-            this.client.reset();
+            this.ensureActiveClient();
         } else if (newPhase === this.phases.ASSEMBLING) {
             this.burgerBuilder.newOrder();
-            this.client.reset();
         }
     }
 
     update() {
-        this.client.update();
+        if (this.client) this.client.update();
+        this.leavingClients.forEach(c => c.update());
+        this.leavingClients = this.leavingClients.filter(c => !c.hasLeft());
         this.particles.update();
 
         // Timer Logic
@@ -60,7 +71,10 @@ export default class GameState {
 
         switch (this.currentPhase) {
             case this.phases.MENU:
-                if (kb.presses('space')) this.changePhase(this.phases.INSTRUCTIONS);
+                if (kb.presses('space')) {
+                    this.resetRun();
+                    this.changePhase(this.phases.INSTRUCTIONS);
+                }
                 break;
             case this.phases.INSTRUCTIONS:
                 this.instructionsTimer++;
@@ -85,28 +99,47 @@ export default class GameState {
                 this.burgerBuilder.update();
                 
                 // Check if client left angry (timeout game over)
-                if (this.client.hasLeft()) {
+                if (this.client && this.client.hasLeft()) {
                     this.currentPhase = this.phases.GAMEOVER;
                     break;
                 }
                 
                 if (this.burgerBuilder.orderComplete) {
+                    this.sendCurrentClientAway();
+                    this.spawnNextClient();
                     this.score += 100;
                     this.time += 10;
                     this.particles.emit(width / 2, height / 2, 'FIRE');
-                    this.changePhase(this.phases.SQUATTING);
                     this.burgersCompleted++;
+                    this.changePhase(this.phases.SQUATTING);
                 }
                 break;
             case this.phases.GAMEOVER:
                 if (kb.presses('space')) {
-                    this.score = 0;
-                    this.client.reset();
-                    this.time = 15;
+                    this.resetRun();
                     this.changePhase(this.phases.MENU);
                 }
                 break;
         }
+    }
+
+    ensureActiveClient() {
+        if (!this.client) {
+            this.spawnNextClient();
+        }
+    }
+
+    spawnNextClient() {
+        const incoming = new Client();
+        incoming.reset();
+        this.client = incoming;
+    }
+
+    sendCurrentClientAway() {
+        if (!this.client) return;
+        this.client.startLeaving();
+        this.leavingClients.push(this.client);
+        this.client = null;
     }
 
     draw() {
@@ -130,9 +163,9 @@ export default class GameState {
         this.drawDesk();
 
         // --- 3. Client (Customer) ---
-        // Only show during assembly phase (after squatting)
-        if (this.currentPhase === this.phases.ASSEMBLING) {
-            this.client.draw();
+        // Show walking/idle client while squatting and assembling
+        if (this.currentPhase === this.phases.SQUATTING || this.currentPhase === this.phases.ASSEMBLING) {
+            this.drawClients();
         }
 
 
@@ -149,6 +182,11 @@ export default class GameState {
         this.particles.draw();
 
         this.drawPhaseOverlays();
+    }
+
+    drawClients() {
+        this.leavingClients.forEach(c => c.draw());
+        if (this.client) this.client.draw();
     }
 
     drawChef() {
