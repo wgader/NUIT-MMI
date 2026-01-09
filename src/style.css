@@ -1,7 +1,7 @@
 body {
     margin: 0;
     padding: 0;
-    background-color: #222;
+    background-color: #000233;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -13,6 +13,7 @@ body {
 
 #app {
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    background-color: #000233;
 }
 
 canvas {

@@ -110,12 +110,15 @@ export default class GameState {
     }
 
     draw() {
-        background(0);
+        background('#000233');
 
         // --- 1. Background ---
         if (window.assets && window.assets.bg) {
             image(window.assets.bg, 0, 0, width, height);
         }
+
+        // --- City Background (Center-Right) ---
+        this.drawCityBg();
 
         // --- 2. Client (Customer) ---
         // Only show during assembly phase (after squatting)
@@ -125,6 +128,7 @@ export default class GameState {
 
         // --- 3. Chef ---
         this.drawChef();
+        this.drawBigChef();
 
         // --- 4
         // --- 3. UI Layout ---
@@ -161,6 +165,16 @@ export default class GameState {
 
         if (sprite) {
             image(sprite, cx, cy, chefW, chefH);
+        }
+    }
+
+    drawBigChef() {
+        if (window.assets && window.assets.bigChef) {
+            const chefW = 250;
+            const chefH = 250;
+            const x = width - chefW - 40; 
+            const y = height / 2 - chefH / 2; 
+            image(window.assets.bigChef, x, y, chefW, chefH);
         }
     }
 
@@ -328,5 +342,18 @@ export default class GameState {
         fill(255);
         textSize(18);
         text("PRESS SPACE TO PLAY AGAIN", width / 2, height / 2 + 40);
+    }
+
+    drawCityBg() {
+        if (window.assets && window.assets.cityBg) {
+            const displayWidth = 1200; // set width, height will auto-scale
+            const aspectRatio = window.assets.cityBg.height / window.assets.cityBg.width;
+            const displayHeight = displayWidth * aspectRatio;
+            
+            const x = width - displayWidth - 40; // center-right with margin
+            const y = height / 2 - displayHeight / 2 + 20; // centered vertically
+            
+            image(window.assets.cityBg, x, y, displayWidth, displayHeight);
+        }
     }
 }

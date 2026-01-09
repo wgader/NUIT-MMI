@@ -106,11 +106,15 @@ window.preload = function () {
     window.assets.chefGym = loadImage('assets/chef_gym.png', cleanImage);
 
     // Background (Opaque)
-    window.assets.bg = loadImage('assets/retro_bg.png');
+    //window.assets.bg = loadImage('assets/background.png');
+    window.assets.cityBg = loadImage('assets/city.png', cleanImage);
 
     // Characters
     window.assets.client = loadImage('assets/client.png', cleanImage);
     window.assets.clientAngry = loadImage('assets/client-angry.png', cleanImage);
+
+    //Big chef
+    window.assets.bigChef = loadImage('assets/chef.png', cleanImage);
 
     // UI - These often have the bad backgrounds
     window.assets.frame = loadImage('assets/blue_frame.png', cleanImage);
@@ -126,7 +130,7 @@ window.preload = function () {
 }
 
 window.setup = function () {
-    let cvs = createCanvas(800, 600);
+    let cvs = createCanvas(windowWidth, windowHeight);
     cvs.parent('app');
 
     noSmooth();
