@@ -1,0 +1,32 @@
+@font-face {
+    font-family: "Press Start 2P";
+    src: url("/fonts/PressStart2P-Regular.ttf") format("truetype");
+}
+
+@font-face {
+    font-family: "Montserrat";
+    src: url("/fonts/Montserrat-VariableFont_wght.ttf") format("truetype");
+}
+
+body {
+    font-family: "Montserrat", sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: "Press Start 2P", sans-serif;
+}
+
+:root {
+    --color-bg-dark: rgba(0, 0, 0, 0.22);
+}
+
+.bg-bg-dark {
+    background-color: var(--color-bg-dark);
+}
