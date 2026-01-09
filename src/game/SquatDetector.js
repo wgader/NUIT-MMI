@@ -4,19 +4,16 @@ export default class SquatDetector {
         this.bodyPose = null;
         this.poses = [];
         this.isReady = false;
-
-        // Calibration
+        
         this.isCalibrated = false;
         this.standY = 0;
-        this.squatThreshold = 25; // Eased to 25px
+        this.squatThreshold = 25; 
 
-        // State
         this.squatState = 'UP';
         this.power = 0;
         this.calibrationFrames = 0;
         this.calibrationSumY = 0;
 
-        // Debug
         this.debugMsg = "Initializing...";
     }
 
@@ -54,26 +51,19 @@ export default class SquatDetector {
     }
 
     update() {
-        // Manual Recalibrate
         if (kb.presses('c')) this.startCalibration();
 
-        // --- EMERGENCY FALLBACK ---
-        // If webcam fails, press 'S' to squat manually
         if (kb.presses('s')) {
             this.addPower(20);
             this.playEffortSound();
             this.debugMsg = "MANUAL SQUAT (S key)";
             return;
         }
-        // --------------------------
 
         if (!this.isReady || this.poses.length === 0) return;
 
-        // ... (rest of logic)
-
         let pose = this.poses[0];
 
-        // Keypoints mapping logic
         let findPart = (n) => pose.keypoints.find(k => k.name === n || k.part === n);
         let leftHip = findPart('left_hip') || findPart('leftHip') || pose.keypoints[11];
         let rightHip = findPart('right_hip') || findPart('rightHip') || pose.keypoints[12];
@@ -95,7 +85,6 @@ export default class SquatDetector {
                 this.debugMsg = "GO! SQUAT DOWN!";
             }
         } else {
-            // Detection Logic
             if (this.squatState === 'UP') {
                 if (currentY > this.standY + this.squatThreshold) {
                     this.squatState = 'DOWN';
@@ -107,7 +96,7 @@ export default class SquatDetector {
             } else if (this.squatState === 'DOWN') {
                 if (currentY < this.standY + this.squatThreshold * 0.5) {
                     this.squatState = 'UP';
-                    this.addPower(20); // More power per squat
+                    this.addPower(20);
                     this.playEffortSound();
                     this.debugMsg = "GREAT! +POWER";
                 } else {
@@ -125,37 +114,29 @@ export default class SquatDetector {
         try {
             const sounds = window.assets && window.assets.effortSounds;
             if (!sounds || !sounds.length) return;
-            // Use Math.random instead of p5's random() to avoid canvas context issues
             const idx = Math.floor(Math.random() * sounds.length);
             const chosen = sounds[idx];
             if (chosen && typeof chosen.play === 'function') {
                 chosen.setVolume(2.0);
-                // Delay slightly to ensure canvas context is ready
                 setTimeout(() => {
                     if (chosen && typeof chosen.play === 'function') {
                         try {
                             chosen.play();
                         } catch (e) {
-                            // Silently ignore
                         }
                     }
                 }, 0);
             }
         } catch (e) {
-            // Silently ignore sound errors to prevent game crashes
         }
     }
 
     draw() {
-        // Draw Feed
         push();
         translate(width, 0);
         scale(-1, 1);
-        // tint(255, 200);
-        // if (this.video) image(this.video, 0, 0, width, height); // HIDDEN
         pop();
 
-        // Visuals
         this.drawSkeleton();
         this.drawLines();
         this.drawDebugText();
@@ -167,12 +148,10 @@ export default class SquatDetector {
         let standY_mapped = this.standY * (height / 480);
         let squatY_mapped = (this.standY + this.squatThreshold) * (height / 480);
 
-        // Green Line (Stand)
         stroke(0, 255, 0);
         strokeWeight(2);
         line(0, standY_mapped, width, standY_mapped);
 
-        // Red Line (Squat Goal)
         stroke(255, 0, 0);
         strokeWeight(4);
         line(0, squatY_mapped, width, squatY_mapped);
@@ -181,7 +160,6 @@ export default class SquatDetector {
     drawSkeleton() {
         if (!this.poses.length) return;
         let pose = this.poses[0];
-        // Just draw hips
         let findPart = (n) => pose.keypoints.find(k => k.name === n || k.part === n);
         let leftHip = findPart('left_hip') || pose.keypoints[11];
         let rightHip = findPart('right_hip') || pose.keypoints[12];
@@ -208,7 +186,6 @@ export default class SquatDetector {
         textAlign(CENTER, TOP);
         text(this.debugMsg, width / 2, 10);
 
-        // Instructions
         textSize(14);
         textAlign(LEFT, BOTTOM);
         text("Press 'C' to Recalibrate", 10, height - 10);

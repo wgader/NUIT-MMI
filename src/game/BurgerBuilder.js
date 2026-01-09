@@ -3,10 +3,8 @@ export default class BurgerBuilder {
         this.currentOrder = [];
         this.playerStack = [];
         this.orderComplete = false;
-        // Map ingredients to sprite sheet indices
         this.ingMap = { 'TOMATO': 5, 'LETTUCE': 4, 'CHEESE': 3, 'PATTY': 2 };
         this.ingredients = ['TOMATO', 'LETTUCE', 'CHEESE', 'PATTY'];
-        // Visual vertical offsets to compensate sprite baseline differences
         this.ingYOffset = { 'TOMATO': 0, 'LETTUCE': 0, 'CHEESE': 0, 'PATTY': -12 };
     }
 
@@ -39,17 +37,13 @@ export default class BurgerBuilder {
                 this.orderComplete = true;
             }
         } else {
-            // Mistake: Reset stack
             this.playerStack = [];
         }
     }
 
     draw() {
-        // --- 1. Draw Target Order (INSIDE TOP FRAME) ---
-        // Frame is at 10,10, size w-20, 80.
-        // Center text and icons there.
 
-        let totalWidth = width - 100; // leave margins on sides
+        let totalWidth = width - 100;
         let spacing = totalWidth / (this.currentOrder.length + 1);
         let startX = spacing;
 
@@ -57,11 +51,8 @@ export default class BurgerBuilder {
             let ing = this.currentOrder[i];
             let idx = this.ingMap[ing];
             let x = startX + i * spacing;
-            let y = 55 + (this.ingYOffset[ing] || 0); // Adjust per-ingredient to visually align
-            // Frame y=35 to 115. Center is 75. Sprite is 40x40. 
-            // So y=55 puts it from 55 to 95. Perfect.
+            let y = 55 + (this.ingYOffset[ing] || 0);
 
-            // Draw Sprite (use 40x40 to match layout)
             if (window.assets && window.assets.ingredients) {
                 let sW = window.assets.ingredients.width / 3;
                 let sH = window.assets.ingredients.height / 2;
@@ -70,21 +61,18 @@ export default class BurgerBuilder {
                 image(window.assets.ingredients, x - 20, y - 20, 80, 80, col * sW, row * sH, sW, sH);
             }
 
-            // Checkmark
             if (i < this.playerStack.length) {
                 fill(0, 255, 0); textSize(30); stroke(0); strokeWeight(3);
                 text("✔", x + 10, y + 30);
             }
         }
 
-        // --- 2. Player Stack (Center Bottom Counter) ---
         let stackBaseY = height - 120;
 
         if (window.assets && window.assets.ingredients) {
             let sW = window.assets.ingredients.width / 3;
             let sH = window.assets.ingredients.height / 2;
 
-            // Base Bun
             image(window.assets.ingredients, width / 2 - 40, stackBaseY, 80, 40, 1 * sW, 0, sW, sH);
 
             let y = stackBaseY - 15;
@@ -102,26 +90,23 @@ export default class BurgerBuilder {
     }
 
     drawControls() {
-        // 4 Big Buttons at Bottom
         let y = height - 50;
         let spacing = 100;
         let startX = width / 2 - 1.5 * spacing;
 
         let buttons = [
-            { key: '<', ing: 'TOMATO', color: '#ff4444' }, // Red
-            { key: '^', ing: 'LETTUCE', color: '#44ff44' }, // Green
-            { key: 'v', ing: 'CHEESE', color: '#ffff44' }, // Yellow
-            { key: '>', ing: 'PATTY', color: '#8b4513' }  // Brown
+            { key: '<', ing: 'TOMATO', color: '#ff4444' }, 
+            { key: '^', ing: 'LETTUCE', color: '#44ff44' }, 
+            { key: 'v', ing: 'CHEESE', color: '#ffff44' }, 
+            { key: '>', ing: 'PATTY', color: '#8b4513' }  
         ];
 
         buttons.forEach((b, i) => {
             let x = startX + i * spacing;
 
-            // Big Circle
             fill(b.color); stroke(255); strokeWeight(4);
             ellipse(x, y, 70, 70);
 
-            // Icon Inside (apply per-ingredient Y offset, moved slightly lower)
             if (window.assets && window.assets.ingredients) {
                 let idx = this.ingMap[b.ing];
                 let sW = window.assets.ingredients.width / 3;
@@ -129,7 +114,7 @@ export default class BurgerBuilder {
                 let col = idx % 3;
                 let row = Math.floor(idx / 3);
                 let iconYOffset = this.ingYOffset[b.ing] || 0;
-                let buttonOffset = (b.ing === 'PATTY') ? -24 : 0; // negative to pull up
+                let buttonOffset = (b.ing === 'PATTY') ? -24 : 0;
                 image(
                     window.assets.ingredients,
                     x - 25,

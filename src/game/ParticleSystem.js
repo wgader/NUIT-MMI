@@ -3,7 +3,6 @@ export default class ParticleSystem {
         this.particles = [];
     }
 
-    // Type: 'FIRE', 'SMOKE'
     emit(x, y, type) {
         let p = {
             x: x,
@@ -24,8 +23,8 @@ export default class ParticleSystem {
             p.life -= 5;
 
             if (p.type === 'FIRE') {
-                p.vy *= 0.95; // Slow down
-                p.life -= 8; // Die faster
+                p.vy *= 0.95; 
+                p.life -= 8;
             }
 
             if (p.life <= 0) {
@@ -39,7 +38,7 @@ export default class ParticleSystem {
         for (let p of this.particles) {
             if (p.type === 'FIRE') {
                 fill(255, random(100, 200), 0, p.life);
-                rect(p.x, p.y, random(4, 8), random(4, 8)); // Pixel fire
+                rect(p.x, p.y, random(4, 8), random(4, 8)); 
             } else if (p.type === 'SMOKE') {
                 fill(100, 100, 100, p.life);
                 rect(p.x, p.y, random(6, 12), random(6, 12));

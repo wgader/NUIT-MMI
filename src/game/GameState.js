@@ -1,14 +1,13 @@
 import SquatDetector from './SquatDetector.js';
 import BurgerBuilder from './BurgerBuilder.js';
 import ParticleSystem from './ParticleSystem.js';
-import Animator from './Animator.js';
 import Client from './Client.js';
 
 export default class GameState {
     constructor() {
         this.phases = {
             MENU: 'MENU',
-            INSTRUCTIONS: 'INSTRUCTIONS', // NEW
+            INSTRUCTIONS: 'INSTRUCTIONS',
             CALIBRATION: 'CALIBRATION',
             SQUATTING: 'SQUATTING',
             ASSEMBLING: 'ASSEMBLING',
@@ -17,10 +16,9 @@ export default class GameState {
         this.currentPhase = this.phases.MENU;
         this.score = 0;
         this.time = 15;
-        this.instructionsTimer = 0; // NEW: tracks frames for auto-advance
+        this.instructionsTimer = 0; 
         this.burgersCompleted = 0;
 
-        // Managers
         this.squatDetector = new SquatDetector();
         this.burgerBuilder = new BurgerBuilder();
         this.particles = new ParticleSystem();
@@ -42,7 +40,7 @@ export default class GameState {
     changePhase(newPhase) {
         this.currentPhase = newPhase;
         if (newPhase === this.phases.INSTRUCTIONS) {
-            this.instructionsTimer = 0; // Reset timer
+            this.instructionsTimer = 0; 
         } else if (newPhase === this.phases.CALIBRATION) {
             this.squatDetector.startCalibration();
         } else if (newPhase === this.phases.SQUATTING) {
@@ -65,9 +63,6 @@ export default class GameState {
         this.leavingClients = this.leavingClients.filter(c => !c.hasLeft());
         this.particles.update();
 
-        // Timer Logic
-        // Ensure frameCount modulo works. P5 frameCount increases every draw.
-        // If phase is active...
         if (this.currentPhase === this.phases.ASSEMBLING || this.currentPhase === this.phases.SQUATTING) {
             if (frameCount % 60 === 0 && this.time > 0) {
                 this.time--;
@@ -93,7 +88,6 @@ export default class GameState {
                     this.changePhase(this.phases.CALIBRATION);
                     break;
                 }
-                // Auto-advance after 4 seconds (240 frames at 60fps)
                 if (this.instructionsTimer > 480) {
                     this.changePhase(this.phases.CALIBRATION);
                 }
@@ -109,7 +103,6 @@ export default class GameState {
             case this.phases.ASSEMBLING:
                 this.burgerBuilder.update();
                 
-                // Check if client left angry (timeout game over)
                 if (this.client && this.client.hasLeft()) {
                     this.changePhase(this.phases.GAMEOVER);
                     break;
@@ -146,7 +139,6 @@ export default class GameState {
     spawnNextClient() {
         const incoming = new Client();
         incoming.reset();
-        // Set callback to play angry sound when this client gets angry
         incoming.onAngry = () => this.playAngrySound();
         this.client = incoming;
     }
@@ -165,19 +157,16 @@ export default class GameState {
             try {
                 bg.setLoop(true);
                 bg.setVolume(0.15);
-                // Delay slightly to ensure canvas context is ready
                 setTimeout(() => {
                     if (bg && typeof bg.play === 'function') {
                         try {
                             bg.play();
                             this.musicStarted = true;
                         } catch (e) {
-                            // Silently ignore
                         }
                     }
                 }, 0);
             } catch (e) {
-                // Silently ignore sound errors
             }
         }
     }
@@ -188,7 +177,6 @@ export default class GameState {
             try {
                 bg.stop();
             } catch (e) {
-                // Silently ignore errors
             }
         }
         this.musicStarted = false;
@@ -207,12 +195,10 @@ export default class GameState {
                             cook.play();
                             this.cookingSoundStarted = true;
                         } catch (e) {
-                            // Silently ignore
                         }
                     }
                 }, 0);
             } catch (e) {
-                // Silently ignore errors
             }
         }
     }
@@ -223,7 +209,6 @@ export default class GameState {
             try {
                 cook.stop();
             } catch (e) {
-                // Silently ignore errors
             }
         }
         this.cookingSoundStarted = false;
@@ -239,12 +224,10 @@ export default class GameState {
                         try {
                             complete.play();
                         } catch (e) {
-                            // Silently ignore
                         }
                     }
                 }, 0);
             } catch (e) {
-                // Silently ignore errors
             }
         }
     }
@@ -259,12 +242,10 @@ export default class GameState {
                         try {
                             lose.play();
                         } catch (e) {
-                            // Silently ignore
                         }
                     }
                 }, 0);
             } catch (e) {
-                // Silently ignore errors
             }
         }
     }
@@ -279,12 +260,10 @@ export default class GameState {
                         try {
                             angry.play();
                         } catch (e) {
-                            // Silently ignore
                         }
                     }
                 }, 0);
             } catch (e) {
-                // Silently ignore errors
             }
         }
     }
@@ -292,35 +271,26 @@ export default class GameState {
     draw() {
         background('#000233');
 
-        // --- 1. Background ---
         if (window.assets && window.assets.bg) {
             image(window.assets.bg, 0, 0, width, height);
         }
 
-        // --- City Background (Center-Right) ---
         this.drawCityBg();
 
-        // --- 2. Chef ---
         this.drawChef();
         this.drawBigChef();
 
-        // Draw barbecue and desk after chef so they appear in front
         this.drawFlamme();
         this.drawBarbecue();
         this.drawDesk();
 
-        // --- 3. Client (Customer) ---
-        // Show walking/idle client while squatting and assembling
         if (this.currentPhase === this.phases.SQUATTING || this.currentPhase === this.phases.ASSEMBLING) {
             this.drawClients();
         }
 
-
-        // --- 4. UI Layout ---
         this.drawLayout();
         this.drawIngFrame();
 
-        // --- 4. Interactive Elements ---
         if (this.currentPhase === this.phases.ASSEMBLING) {
             this.burgerBuilder.draw();
         }
@@ -337,16 +307,14 @@ export default class GameState {
     }
 
     drawChef() {
-        // Position the chef directly beneath the left power bar
         const gaugeX = 10;
         const gaugeY = 140;
         const gaugeW = 90;
         const gaugeH = 300;
         const chefW = 140;
         const chefH = 140;
-        const padding = 10; // small gap below the gauge
+        const padding = 10; 
 
-        // Center chef horizontally under the gauge and place just below it
         let cx = gaugeX + gaugeW / 3 - chefW / 2.5;
         let cy = gaugeY + gaugeH + padding;
 
@@ -371,11 +339,10 @@ export default class GameState {
     }
 
     drawLayout() {
-        // --- 1. Stats Bar (Top of Screen) ---
         fill(0, 0, 0, 200); noStroke();
-        rect(0, 0, width, 30); // Stick to top
+        rect(0, 0, width, 30);
 
-        fill(255, 255, 0); // Yellow
+        fill(255, 255, 0);
         textAlign(CENTER, CENTER);
         textSize(18);
         textStyle(BOLD);
@@ -385,29 +352,21 @@ export default class GameState {
         let timeStr = `${m}:${s < 10 ? '0' + s : s}`;
 
         text(`BURGERS: ${this.burgersCompleted}      TIME: ${timeStr}`, width / 2, 15);
-        textStyle(NORMAL); // Reset
+        textStyle(NORMAL); 
 
-        // --- 2. Recipe Frame (Pushed down) ---
         if (window.assets && window.assets.frame) {
             image(window.assets.frame, 10, 35, width - 20, 80);
         }
 
-        // --- 3. Left Flame Gauge ---
-        if (window.assets && window.assets.gauge) {
-            image(window.assets.gauge, 10, 140, 90, 300);
-        }
     }
 
     drawIngFrame() {
         if (window.assets && window.assets.ingFrame) {
-            // Draw frame around the top ingredients area
             image(window.assets.ingFrame, 10, 35, width - 20, 80);
         }
     }
 
     drawGaugeFill() {
-        // Gauge Frame at x=10, y=140, w=90, h=300
-        // Draw flame sprites based on power instead of a color rect
 
         let power = this.squatDetector.power;
         const frames = window.assets && window.assets.flameFrames;
@@ -417,21 +376,18 @@ export default class GameState {
         const gaugeW = 90;
         const gaugeH = 300;
 
-        // Size/placement for the flame inside the gauge
         const flameW = 50;
         const flameH = 220;
         const flameX = gaugeX + Math.round((gaugeW - flameW) / 2);
-        const flameBottom = gaugeY + gaugeH - 20; // leave small padding at bottom
+        const flameBottom = gaugeY + gaugeH - 20; 
         const flameY = flameBottom - flameH;
 
         if (frames && frames.length && power >= 0) {
-            // Map low power to frame 0 (flame-1), high power to last frame
             let idx = Math.floor(map(power, 0, 100, 0, frames.length - 1));
             idx = constrain(idx, 0, frames.length - 1);
             image(frames[idx], flameX, flameY, flameW, flameH);
         }
 
-        // Label (keeps centered over the inner bar)
         fill(255); textAlign(CENTER); textSize(12);
         text("POWER", gaugeX + gaugeW / 2, 140);
     }
@@ -458,8 +414,6 @@ export default class GameState {
     }
 
     drawOverlay(title, sub) {
-        // Use the same font as the loading text
-        // (Google font is included in index.html)
         textFont('Press Start 2P');
         fill(0, 0, 0, 200);
         rect(0, 0, width, height);
@@ -468,8 +422,6 @@ export default class GameState {
         text(title, width / 2, height / 2 - 20);
         textSize(20);
         text(sub, width / 2, height / 2 + 30);
-        // Optional: reset if other UI should use default
-        // textFont('sans-serif');
     }
 
     drawInstructionsOverlay() {
@@ -488,13 +440,11 @@ export default class GameState {
         let lineHeight = 30;
         let sectionGap = 20;
         
-        // Step 1
         text("1. SQUAT to fill the", width / 2, y);
         y += lineHeight;
         text("   POWER BAR", width / 2, y);
         y += lineHeight + sectionGap;
         
-        // Step 2
         text("2. When FULL, assemble", width / 2, y);
         y += lineHeight;
         text("   the burger using the", width / 2, y);
@@ -504,12 +454,10 @@ export default class GameState {
         text("   order at the top", width / 2, y);
         y += lineHeight + sectionGap;
         
-        // Step 3
         text("3. Complete orders before", width / 2, y);
         y += lineHeight;
         text("   time runs out!", width / 2, y);
         
-        // Prompt to skip
         y = height - 70;
         textSize(18);
         fill(255, 255, 0);
@@ -592,17 +540,14 @@ export default class GameState {
             const speedMultiplier = 8.0;
             const time = frameCount * (0.15 * speedMultiplier);
             
-            // Create angled flames that flicker intensely
             for (let layer = 0; layer < 4; layer++) {
                 const layerTime = time + layer * 0.3;
-                
-                // Angle varies dramatically by layer and time for wild swaying
-                const baseAngle = (layer - 1.5) * 0.25; // stagger base angles
-                const swayAngle = sin(layerTime * 2.5) * 1.2; // intense sway
-                const wobbleAngle = cos(layerTime * 3.3) * 0.6; // additional wobble
+
+                const baseAngle = (layer - 1.5) * 0.25; 
+                const swayAngle = sin(layerTime * 2.5) * 1.2;
+                const wobbleAngle = cos(layerTime * 3.3) * 0.6; 
                 const totalAngle = baseAngle + swayAngle + wobbleAngle;
                 
-                // Opacity fades as we add layers
                 const layerAlpha = 255 * (1 - layer * 0.25);
                 
                 push();

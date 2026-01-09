@@ -16,14 +16,11 @@ export default class Animator {
     draw(x, y, w, h) {
         if (!this.sheet) return;
 
-        // Update Frame
         if (millis() - this.lastFrame > 1000 / this.frameRate) {
-            this.currentFrame = (this.currentFrame + 1) % 4; // Assume 4 frames per row
+            this.currentFrame = (this.currentFrame + 1) % 4; 
             this.lastFrame = millis();
         }
 
-        // Draw
-        // We use the pixel art scaling
         image(
             this.sheet,
             x, y, w, h,
