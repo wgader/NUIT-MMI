@@ -1,4 +1,3 @@
-
 import './style.css';
 import GameState from './game/GameState.js';
 
@@ -115,8 +114,17 @@ window.preload = function () {
     window.assets.client = loadImage('assets/client.png', cleanImage);
     window.assets.clientAngry = loadImage('assets/client-angry.png', cleanImage);
 
+    window.assets.client2 = loadImage('assets/client2.png', cleanImage);
+    window.assets.client2Angry = loadImage('assets/client2-angry.png', cleanImage);
+
     //Big chef
     window.assets.bigChef = loadImage('assets/chef.png', cleanImage);
+
+    //Desk
+    window.assets.desk = loadImage('assets/desk.png', cleanImage);
+
+    //Barbecue
+    window.assets.barbecue = loadImage('assets/barbecue.png', cleanImage);
 
     // UI - These often have the bad backgrounds
     window.assets.frame = loadImage('assets/blue_frame.png', cleanImage);
@@ -129,6 +137,8 @@ window.preload = function () {
         loadImage('assets/flame/flame-5.png', cleanImage)
     ];
     window.assets.buttons = loadImage('assets/buttons.png', cleanImage);
+    //Flamme
+    window.assets.flamme = loadImage('assets/flamme.svg');
 }
 
 window.setup = function () {

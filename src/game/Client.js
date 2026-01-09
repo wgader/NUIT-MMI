@@ -10,6 +10,7 @@ export default class Client {
         this.isAngry = false;
         this.arrivalTime = null;
         this.waitTime = 0;
+        this.clientType = 'client'; // Will be randomly set on reset
     }
 
     reset() {
@@ -21,6 +22,8 @@ export default class Client {
         this.isAngry = false;
         this.arrivalTime = null;
         this.waitTime = 0;
+        // Randomly choose client type
+        this.clientType = Math.random() > 0.5 ? 'client' : 'client2';
     }
 
     update() {
@@ -69,8 +72,10 @@ export default class Client {
 
     draw() {
         if (window.assets) {
-            // Choose sprite based on state
-            let sprite = this.isAngry ? window.assets.clientAngry : window.assets.client;
+            // Choose sprite based on client type and state
+            let normalSprite = this.clientType === 'client2' ? window.assets.client2 : window.assets.client;
+            let angrySprite = this.clientType === 'client2' ? window.assets.client2Angry : window.assets.clientAngry;
+            let sprite = this.isAngry ? angrySprite : normalSprite;
             
             if (sprite) {
                 push();

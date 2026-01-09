@@ -16,7 +16,7 @@ export default class GameState {
         };
         this.currentPhase = this.phases.MENU;
         this.score = 0;
-        this.time = 30;
+        this.time = 15;
         this.instructionsTimer = 0; // NEW: tracks frames for auto-advance
         this.burgersCompleted = 0;
 
@@ -102,7 +102,7 @@ export default class GameState {
                 if (kb.presses('space')) {
                     this.score = 0;
                     this.client.reset();
-                    this.time = 60;
+                    this.time = 15;
                     this.changePhase(this.phases.MENU);
                 }
                 break;
@@ -120,18 +120,23 @@ export default class GameState {
         // --- City Background (Center-Right) ---
         this.drawCityBg();
 
-        // --- 2. Client (Customer) ---
+        // --- 2. Chef ---
+        this.drawChef();
+        this.drawBigChef();
+
+        // Draw barbecue and desk after chef so they appear in front
+        this.drawFlamme();
+        this.drawBarbecue();
+        this.drawDesk();
+
+        // --- 3. Client (Customer) ---
         // Only show during assembly phase (after squatting)
         if (this.currentPhase === this.phases.ASSEMBLING) {
             this.client.draw();
         }
 
-        // --- 3. Chef ---
-        this.drawChef();
-        this.drawBigChef();
 
-        // --- 4
-        // --- 3. UI Layout ---
+        // --- 4. UI Layout ---
         this.drawLayout();
         this.drawIngFrame();
 
@@ -142,6 +147,7 @@ export default class GameState {
 
         this.drawGaugeFill();
         this.particles.draw();
+
         this.drawPhaseOverlays();
     }
 
@@ -173,8 +179,8 @@ export default class GameState {
         if (window.assets && window.assets.bigChef) {
             const chefW = 250;
             const chefH = 250;
-            const x = width - chefW - 40; 
-            const y = height / 2 - chefH / 2; 
+            const x = width / 2 - chefW / 2 + 220;
+            const y = height / 2 - chefH / 2 + 60; 
             image(window.assets.bigChef, x, y, chefW, chefH);
         }
     }
@@ -362,6 +368,69 @@ export default class GameState {
             const y = height / 2 - displayHeight / 2 + 20;
             
             image(window.assets.cityBg, x, y, displayWidth, displayHeight);
+        }
+    }
+
+    drawDesk() {
+        if (window.assets && window.assets.desk) {
+            const displayWidth = 400;
+            const aspectRatio = window.assets.desk.height / window.assets.desk.width;
+            const displayHeight = displayWidth * aspectRatio;
+            
+            const x = width / 2 ; 
+            const y = height / 2 - displayHeight / 2 + 190; 
+            
+            image(window.assets.desk, x, y, displayWidth, displayHeight);
+        }
+    }
+
+    drawBarbecue() {
+        if (window.assets && window.assets.barbecue) {
+            const displayWidth = 350;
+            const aspectRatio = window.assets.barbecue.height / window.assets.barbecue.width;
+            const displayHeight = displayWidth * aspectRatio;
+            
+            const x = width / 2 + 410; 
+            const y = height / 2 - displayHeight / 2 + 120; 
+            
+            image(window.assets.barbecue, x, y, displayWidth, displayHeight);
+        }
+    }
+
+    drawFlamme() {
+        if (window.assets && window.assets.flamme) {
+            const flameW = 150;
+            const flameH = 200;
+            const x = width / 2 - flameW / 2 + 550;
+            const y = height / 2 - flameH / 2 + 100;
+            
+            const speedMultiplier = 8.0;
+            const time = frameCount * (0.15 * speedMultiplier);
+            
+            // Create angled flames that flicker intensely
+            for (let layer = 0; layer < 4; layer++) {
+                const layerTime = time + layer * 0.3;
+                
+                // Angle varies dramatically by layer and time for wild swaying
+                const baseAngle = (layer - 1.5) * 0.25; // stagger base angles
+                const swayAngle = sin(layerTime * 2.5) * 1.2; // intense sway
+                const wobbleAngle = cos(layerTime * 3.3) * 0.6; // additional wobble
+                const totalAngle = baseAngle + swayAngle + wobbleAngle;
+                
+                // Opacity fades as we add layers
+                const layerAlpha = 255 * (1 - layer * 0.25);
+                
+                push();
+                translate(x + flameW / 2, y + flameH / 2);
+                rotate(totalAngle);
+                
+                tint(255, 255, 255, layerAlpha);
+                imageMode(CENTER);
+                image(window.assets.flamme, 0, 0, flameW, flameH);
+                pop();
+            }
+            
+            noTint();
         }
     }
 }
